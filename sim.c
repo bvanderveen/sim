@@ -4,21 +4,22 @@
 #include <OpenGL/gl.h>
 
 
-sim_ctx *sim_create() {
-  return (sim_ctx *)malloc(sizeof(sim_ctx));
+sim_ctx sim_create() {
+  sim_ctx result = (sim_ctx)malloc(sizeof(sim_ctx));
+  result->t = 0.0;
+  return result;
 }
 
-void sim_destroy(sim_ctx *c) {
+void sim_destroy(sim_ctx c) {
   free(c);
 }
 
-void sim_update() {
+void sim_update(sim_ctx ctx, double t) {
+  ctx->t += t * .0001;
 }
 
-void sim_draw(sim_ctx *ctx, double t) {
-  ctx->t += t * .000001;
-
-  glRotatef(ctx->t, 0,0,1);
+void sim_draw(sim_ctx ctx, double t) {
+  glRotated(ctx->t, 0,0,1);
 
   glClearColor(0,0,0,0);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -30,8 +31,7 @@ void sim_draw(sim_ctx *ctx, double t) {
     glVertex3f( -0.2, -0.3, 0.0);
     glVertex3f(  0.2, -0.3 ,0.0);
   }
-  glEnd();  
-
+  glEnd(); 
   glFlush();
 }
 

@@ -4,9 +4,10 @@
 @implementation AppDelegate 
 
 void draw(double t, void *ctx) {
-	AppDelegate *del = (AppDelegate *)ctx;
+  AppDelegate *del = (AppDelegate *)ctx;
 
-	sim_draw(del->simContext, t);
+  sim_update(del->simContext, t);
+  sim_draw(del->simContext, t);
 }
 
 - (id)init {
@@ -22,7 +23,7 @@ void draw(double t, void *ctx) {
 }
 
 - (void)dealloc {
-	sim_destroy(simContext);
+  sim_destroy(simContext);
   [window release];
   [super dealloc];
 }

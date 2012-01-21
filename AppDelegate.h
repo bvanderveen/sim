@@ -3,7 +3,7 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
   NSWindow *window;
-  sim_ctx *simContext;
+  sim_ctx simContext;
 }
 @end
 
