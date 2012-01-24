@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <OpenGL/gl.h>
 
-typedef double SimUnit;
+typedef float SimUnit;
 #define SimUnitZero 0
 
 struct Sim3Vector {
@@ -11,19 +11,24 @@ struct Sim3Vector {
 };
 typedef struct Sim3Vector Sim3Vector;
 
+#define Sim3VectorPrint(V) printf("x = %f, y = %f, z = %f\n", (V).x, (V).y, (V).z)
 #define Sim3VectorZero ((Sim3Vector){ .x = SimUnitZero, .y = SimUnitZero, .z = SimUnitZero })
 #define Sim3VectorMake(X, Y, Z) ((Sim3Vector){ .x = (X), .y = (Y), .z = (Z) })
 #define Sim3VectorAdd(A, B) ((Sim3Vector){ .x = (A).x + (B).x, .y = (A).y + (B).y, .z = (A).z + (B).z })
 #define Sim3VectorScale(K, V) ((Sim3Vector){ .x = (K) * (V).x, .y = (K) * (V).y, .z = (K) * (V).z })
+//#define Sim3VectorMagnitudeSquared(V) ((V).x * (V).x + (V).y * (V).y + (V).z * (V).z)
+//#define Sim3VectorRotate(R, V) ((Sim3Vector){ .x =  })
 
 struct SimThruster {
-  Sim3Vector thrust;
+  SimUnit amount;
+  Sim3Vector direction;
 };
 typedef struct SimThruster *SimThrusterRef;
 
 SimThrusterRef SimThrusterCreate() {
   SimThrusterRef result = (SimThrusterRef)malloc(sizeof(struct SimThruster));
-  result->thrust = Sim3VectorZero;
+  result->amount = SimUnitZero;
+  result->direction = Sim3VectorZero;
   return result;
 }
 
@@ -53,8 +58,9 @@ SimVehicleRef SimVehicleCreate() {
   result->angle = Sim3VectorZero;
   result->angularVelocity = Sim3VectorZero;
 
-  result->mass = SimUnitZero;
+  result->mass = 1;
   result->thruster = SimThrusterCreate();
+  result->thruster->amount = .1;
   return result;
 }
 
@@ -64,14 +70,17 @@ void SimVehicleDestroy(SimVehicleRef ref) {
 }
 
 void SimVehicleUpdate(SimVehicleRef ref, SimUnit t) {
-  ref->position = Sim3VectorAdd(ref->position, Sim3VectorScale(1/t, ref->velocity));
-  ref->velocity = Sim3VectorAdd(ref->velocity, Sim3VectorScale(1/t, ref->thruster->thrust));
+  ref->position = Sim3VectorAdd(ref->position, Sim3VectorScale(t, ref->velocity));
+
+  // XXX need to rotate thrust vector.
+  Sim3Vector thrust = Sim3VectorMake(0, ref->thruster->amount, 0);
+  ref->velocity = Sim3VectorAdd(ref->velocity, Sim3VectorScale(1/ref->mass, thrust));
 }
 
 void SimVehicleDraw(SimVehicleRef ref, SimUnit t) {
   glPushMatrix();
   
-  glTranslated(ref->position.x, ref->position.y, ref->position.z);
+  glTranslatef(ref->position.x, ref->position.y, ref->position.z);
 
   glColor3f(1.0f, 0.85f, 0.35f);
   glBegin(GL_TRIANGLES);
@@ -93,7 +102,6 @@ typedef struct SimContext *SimContext;
 SimContextRef SimContextCreate() {
   SimContext result = (SimContext)malloc(sizeof(struct SimContext));
   result->vehicle = SimVehicleCreate();
-  result->vehicle->thruster->thrust = Sim3VectorMake(0,0.00001,0);
   return result;
 }
 
