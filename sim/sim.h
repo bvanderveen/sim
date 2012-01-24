@@ -1,5 +1,4 @@
 
-
 typedef void *SimContextRef;
 
 SimContextRef SimContextCreate();
