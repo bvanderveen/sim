@@ -1,12 +1,9 @@
 
-struct sim_ctx_t
-{
-  double t;
-};
-typedef struct sim_ctx_t *sim_ctx;
 
-sim_ctx sim_create();
-void sim_destroy(sim_ctx c);
+typedef void *SimContextRef;
 
-void sim_update(sim_ctx c, double t);
-void sim_draw(sim_ctx c, double t);
+SimContextRef SimContextCreate();
+void SimContextDestroy(SimContextRef c);
+
+void SimContextUpdate(SimContextRef c, double t);
+void SimContextDraw(SimContextRef c, double t);

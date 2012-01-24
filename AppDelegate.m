@@ -6,8 +6,8 @@
 void draw(double t, void *ctx) {
   AppDelegate *del = (AppDelegate *)ctx;
 
-  sim_update(del->simContext, t);
-  sim_draw(del->simContext, t);
+  SimContextUpdate(del->simContext, t);
+  SimContextDraw(del->simContext, t);
 }
 
 - (id)init {
@@ -15,7 +15,7 @@ void draw(double t, void *ctx) {
     NSRect bounds = NSMakeRect(0,0,400,400);
     window = [[NSWindow alloc] initWithContentRect:bounds styleMask:NSTitledWindowMask | NSClosableWindowMask backing:NSBackingStoreBuffered defer:YES];
 
-    simContext = sim_create();
+    simContext = SimContextCreate();
 
     [window setContentView:[[[OpenGLView alloc] initWithFrame:bounds draw:draw context:self] autorelease]];
   }
@@ -23,7 +23,7 @@ void draw(double t, void *ctx) {
 }
 
 - (void)dealloc {
-  sim_destroy(simContext);
+  SimContextDestroy(simContext);
   [window release];
   [super dealloc];
 }

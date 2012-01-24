@@ -3,22 +3,30 @@
 #include <stdlib.h>
 #include <OpenGL/gl.h>
 
+struct SimContext
+{
+  double t;
+};
+typedef struct SimContext *SimContext;
 
-sim_ctx sim_create() {
-  sim_ctx result = (sim_ctx)malloc(sizeof(sim_ctx));
+SimContextRef SimContextCreate() {
+  SimContext result = (SimContext)malloc(sizeof(SimContext));
   result->t = 0.0;
-  return result;
+  return (SimContext)result;
 }
 
-void sim_destroy(sim_ctx c) {
+void SimContextDestroy(SimContextRef c) {
   free(c);
 }
 
-void sim_update(sim_ctx ctx, double t) {
+void SimContextUpdate(SimContextRef c, double t) {
+  SimContext ctx = c;
   ctx->t += t * .0001;
 }
 
-void sim_draw(sim_ctx ctx, double t) {
+void SimContextDraw(SimContextRef c, double t) {
+  SimContext ctx = c;
+  
   glRotated(ctx->t, 0,0,1);
 
   glClearColor(0,0,0,0);
