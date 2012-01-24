@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#include "sim.h"
+#include "sim/sim.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
   NSWindow *window;
