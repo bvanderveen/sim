@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <OpenGL/gl.h>
+#include <math.h>
 
 typedef float SimUnit;
 #define SimUnitZero 0
@@ -35,11 +36,12 @@ typedef struct SimQuat SimQuat;
 Sim3Vector SimQuatRotate(SimQuat q, Sim3Vector v) {
   printf("input was\n");
   Sim3VectorPrint(v);
-  SimQuat left = SimQuatMult(q, SimQuatMake(0, v.x, v.y, v.z));
-  SimQuat result = SimQuatMult(left, SimQuatConjugate(q));
-  Sim3Vector outV = Sim3VectorMake(result.x, result.y, result.z);
-  printf("output was");
+
+  SimQuat result = SimQuatMult(SimQuatMult(q, SimQuatMake(0, v.x, v.y, v.z)), SimQuatConjugate(q));
+  printf("output was\n");
   SimQuatPrint(result);
+
+  Sim3Vector outV = Sim3VectorMake(result.x, result.y, result.z);
   return outV;
 }
 
@@ -56,7 +58,7 @@ SimThrusterRef SimThrusterCreate() {
   return result;
 }
 
-#define SimThrusterGetThrust(T) SimQuatRotate((T)->direction, Sim3VectorMake((T)->amount,0,0))
+#define SimThrusterGetThrust(T) Sim3VectorScale((T)->amount, SimQuatRotate((T)->direction, Sim3VectorMake(1,0,0)))
 
 void SimThrusterDestroy(SimThrusterRef ref) {
   free(ref);
@@ -81,7 +83,7 @@ SimVehicleRef SimVehicleCreate() {
   result->mass = 1;
   result->thruster = SimThrusterCreate();
   result->thruster->amount = .05;
-  result->thruster->direction = SimQuatMake(1,1,1,1);
+  result->thruster->direction = SimQuatMake(sqrt(0.5),0,0,sqrt(0.5));
   return result;
 }
 
