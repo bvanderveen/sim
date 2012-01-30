@@ -4,6 +4,8 @@
 #include <OpenGL/gl.h>
 #include <math.h>
 
+// bunch new shit from http://www.cs.cmu.edu/~baraff/sigcourse/notesd1.pdf
+
 typedef float SimUnit;
 #define SimUnitZero 0
 
@@ -25,24 +27,145 @@ typedef struct SimQuat SimQuat;
 
 #define SimQuatPrint(V) printf("w = %f, x = %f, y = %f, z = %f\n", (V).w, (V).x, (V).y, (V).z)
 #define SimQuatMake(W, X, Y, Z) ((SimQuat){ .w = (W), .x = (X), .y = (Y), .z = (Z) })
+
 #define SimQuatZero SimQuatMake(0,0,0,0)
+
+SimQuat SimQuatMakeWithAngle(SimUnit angle, Sim3Vector unitVector) {
+  Sim3Vector v = Sim3VectorScale(sin(1.0 / 2.0 * angle), unitVector);
+  return ((SimQuat){ .w = cos(1.0 / 2.0 * angle), .x = v.x, .y = v.y, .z = v.z });
+}
+
+#define SimQuatMakeWithVector(V) SimQuatMake(0, (V).x, (V).y, (V).z)
+
 #define SimQuatConjugate(Q) ((SimQuat){ .w = (Q).w, .x = -(Q).x, .y = -(Q).y, .z = -(Q).z })
 #define SimQuatMult(L, R) ((SimQuat){ \
   .w = (L).w * (R).w - (L).x * (R).x - (L).y * (R).y - (L).z * (R).z, \
   .x = (L).w * (R).x + (L).x * (R).w + (L).y * (R).z - (L).z * (R).y, \
   .y = (L).w * (R).y + (L).y * (R).w + (L).z * (R).x - (L).x * (R).z, \
   .z = (L).w * (R).z + (L).z * (R).w + (L).x * (R).y - (L).y * (R).x })
+#define SimQuatScale(K, Q) ((SimQuat){ .w = (K) * (Q).w, .x = (K) * (Q).x, .y = (K) * (Q).y, .z = (K) * (Q).z })
+#define SimQuatNormalize(Q) ((SimQuat){ })
 
 Sim3Vector SimQuatRotate(SimQuat q, Sim3Vector v) {
-  printf("input was\n");
-  Sim3VectorPrint(v);
-
   SimQuat result = SimQuatMult(SimQuatMult(q, SimQuatMake(0, v.x, v.y, v.z)), SimQuatConjugate(q));
-  printf("output was\n");
-  SimQuatPrint(result);
+  return Sim3VectorMake(result.x, result.y, result.z);
+}
 
-  Sim3Vector outV = Sim3VectorMake(result.x, result.y, result.z);
-  return outV;
+typedef void (*ODEFunc)(SimUnit t, SimUnit y[], /* out */ SimUnit yDot[], void *context);
+
+void ODESolver(SimUnit y0[], int len, SimUnit t0, SimUnit t1, ODEFunc dydt, /* out */ SimUnit y1[]) {
+  // XXX assuming len is invariate, leak memory. ha ha
+  static SimUnit result[] = 0; if (!result) result = malloc(sizeof(SimUnit) * len);
+
+  dydt(t1 - t0, y0, result);
+
+  for (int i = 0; i < len; i++)
+    y1[i] = y0[i] + result[i];
+}
+
+struct SimMatrix {
+  SimUnit m0, m1, m2, m3, m4, m5, m6, m7, m8
+}
+
+#define SimMatrixTranspose(M) ((SimMatrix){ })
+#define SimMatrixMultiply(A, B) ((SimMatrix){ })
+#define SimMatrixMakeRotationWithQuat(Q) ((SimMatrix){ })
+
+struct SimRigidBody {
+  SimUnit mass;
+  SimMatrix Ibody, IbodyInv;
+
+  Sim3Vector x, P, L;
+  SimQuat q;
+
+  Sim3Vector v, omega;
+
+  Sim3Vector force, torque;
+};
+typedef struct RigidBody *SimRigidBodyRef
+
+void SimRigidBodySize() {
+  return sizeof(struct SimRigidBody);
+}
+
+void SimRigidBodyCopyToBuffer(SimRigidBodyRef ref, SimUnit *y) {
+  *y++ = ref->x.x;
+  *y++ = ref->x.y;
+  *y++ = ref->x.z;
+
+  *y++ = ref->q.w;
+  *y++ = ref->q.x;
+  *y++ = ref->q.y;
+  *y++ = ref->q.z;
+
+  *y++ = ref->P.x;
+  *y++ = ref->P.y;
+  *y++ = ref->P.z;
+
+  *y++ = ref->L.x;
+  *y++ = ref->L.y;
+  *y++ = ref->L.z;
+}
+
+void SimRigidBodyCopyFromBuffer(SimRigidBodyRef ref, SimUnit *y) {
+  ref->x.x = *y++;
+  ref->x.y = *y++;
+  ref->x.z = *y++;
+
+  ref->q.w = *y++;
+  ref->q.x = *y++;
+  ref->q.y = *y++;
+  ref->q.z = *y++;
+
+  ref->P.x = *y++;
+  ref->P.y = *y++;
+  ref->P.z = *y++;
+
+  ref->L.x = *y++;
+  ref->L.y = *y++;
+  ref->L.z = *y++;
+
+  ref->v = Sim3VectorScale(1/ref->mass, ref->P);
+
+  SimQuat qNorm = SimQuatNormalize(ref->q);
+  SimMatrix R = SimMatrixMakeRotationWithQuat(qNorm);
+  SimMatrix m = SimMatrixMult(R, ref->IbodyInv);
+  ref->Iinv = SimMatrixMult(m, SimMatrixTranspose(R));
+  ref->omega = SimMatrixMultVectorRight(ref->Iinv, rb->L);
+}
+
+void SimRigidBodyUpdateInput(SimRigidBody ref) {
+  // XXX assign ref->force and ref->torque, e.g., from user input
+}
+
+void SimRigidBodyUpdateState(SimRigidBody ref, SimUnit outputBuffer[]) {
+  *outputBuffer++ = ref->v.x;
+  *outputBuffer++ = ref->v.y;
+  *outputBuffer++ = ref->v.z;
+
+  SimQuat omegaAugmented = SimQuatMakeWithVector(ref->omega)
+  SimQuat qdot = .5 * SimQuatMult(omegaAugmented, ref->q);
+  *outputBuffer++ = qdot.w;
+  *outputBuffer++ = qdot.x;
+  *outputBuffer++ = qdot.y;
+  *outputBuffer++ = qdot.z;
+
+  *outputBuffer++ = ref->force.x;
+  *outputBuffer++ = ref->force.y;
+  *outputBuffer++ = ref->force.z;
+
+  *outputBuffer++ = ref->torque.x;
+  *outputBuffer++ = ref->torque.y;
+  *outputBuffer++ = ref->torque.z;
+}
+
+void RigidBodySolve(SimUnit t, SimUnit inputBuffer[], /* out */ SimUnit outputBuffer[]) {
+  SimRigidBodyRef ref;
+
+  SimRigidBodyCopyFromBuffer(ref, inputBuffer);
+  SimRigidBodyUpdateInput(ref);
+  SimRigidBodyUpdateState(ref);
+  SimRigidBodyCopyToBuffer(ref, outputBuffer);
 }
 
 struct SimThruster {
@@ -58,7 +181,7 @@ SimThrusterRef SimThrusterCreate() {
   return result;
 }
 
-#define SimThrusterGetThrust(T) Sim3VectorScale((T)->amount, SimQuatRotate((T)->direction, Sim3VectorMake(1,0,0)))
+#define SimThrusterGetThrust(T) Sim3VectorScale((T)->amount, SimQuatRotate((T)->direction, Sim3VectorMake(0,1,0)))
 
 void SimThrusterDestroy(SimThrusterRef ref) {
   free(ref);
@@ -67,23 +190,19 @@ void SimThrusterDestroy(SimThrusterRef ref) {
 struct SimVehicle {
   Sim3Vector position;
   Sim3Vector velocity;
-
   SimUnit mass;
-
   SimThrusterRef thruster;
 };
 typedef struct SimVehicle *SimVehicleRef;
 
 SimVehicleRef SimVehicleCreate() {
   SimVehicleRef result = (SimVehicleRef)malloc(sizeof(struct SimVehicle));
-
   result->position = Sim3VectorZero;
   result->velocity = Sim3VectorZero;
-
   result->mass = 1;
   result->thruster = SimThrusterCreate();
   result->thruster->amount = .05;
-  result->thruster->direction = SimQuatMake(sqrt(0.5),0,0,sqrt(0.5));
+  result->thruster->direction = SimQuatMakeWithAngle(0, Sim3VectorMake(1,0,0));
   return result;
 }
 
