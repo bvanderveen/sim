@@ -74,7 +74,7 @@ void SimRigidBodyCopyFromBuffer(SimRigidBodyRef ref, SimUnit y[]) {
 
 void SimRigidBodyUpdateInput(SimRigidBodyRef ref, SimUnit t) {
   // XXX assign ref->force and ref->torque, e.g., from user input
-  ref->force = Sim3VectorMake(1,0,0);
+  ref->force = Sim3VectorMake(0,.01,0);
   ref->torque = Sim3VectorZero;
 }
 

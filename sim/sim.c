@@ -32,8 +32,6 @@ SimContextRef SimContextCreate() {
     SimRigidBodyCopyToBuffer(vehicle->body, &result->state1[offset]);
 
     result->vehicles[i] = vehicle;
-
-    printf("if we pull it out!!! we get vehicle (%p)\n", result->vehicles[i]);
   }
   
   return result;
@@ -51,18 +49,9 @@ void SimContextDestroy(SimContextRef ref) {
 }
 
 void SimContextUpdate(SimContextRef ref, double dt) {
-  printf("updating context %p\n", ref);
-
-  printf("will shuffle state vector\n");
-  memcpy(ref->state1, ref->state0, sizeof(SimUnit) * SimContextGetStateVectorSize(ref));
-  printf("did shuffle state vector\n");
-
-  printf("will call solver\n");
+  memcpy(ref->state0, ref->state1, sizeof(SimUnit) * SimContextGetStateVectorSize(ref));
   ODESolver(ref->state0, SimContextGetStateVectorSize(ref), ref->t, ref->t + dt, RigidBodySolve, ref->state1, ref);
-  printf("did call solver\n");
-
   ref->t += dt;
-  printf("world time is now %f\n", ref->t);
 }
 
 void SimContextDraw(SimContextRef ref, double dt) {

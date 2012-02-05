@@ -41,19 +41,30 @@ SimMatrix SimMatrixMakeBlockTensor(SimUnit x, SimUnit y, SimUnit z) {
 
 void ODESolver(SimUnit y0[], int len, SimUnit t0, SimUnit t1, ODEFunc dydt, /* out */ SimUnit y1[], void *context) {
   // XXX assuming len is invariate, leak memory. ha ha
-  printf("allocating some shit\n");
   static SimUnit *result = 0; 
-  if (!result) 
+  if (!result) {
     result = (SimUnit *)malloc(sizeof(SimUnit) * len);
+  }
 
-  printf("calling dydt\n");
-  //dydt(0, (SimUnit *)0, (SimUnit *)0, context);
   dydt(t1 - t0, y0, result, context);
-  printf("called dydt\n");
 
-  printf("will compute new values\n");
+  printf("initial state: ");
+
+  for (int i = 0; i < len; i++) {
+    printf("%f ", y0[i]);
+  }
+  printf("\n");
+  printf("d/dt state:    ");
+
+  for (int i = 0; i < len; i++) {
+    printf("%f ", result[i]);
+  }
+  printf("\n");
+  printf("final state:   ");
+
   for (int i = 0; i < len; i++) {
     y1[i] = y0[i] + result[i];
+    printf("%f ", y1[i]);
   }
-  printf("did compute new values\n");
+  printf("\n");
 }
