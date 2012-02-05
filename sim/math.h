@@ -1,4 +1,7 @@
 
+#ifndef __SIM_MATH
+#define __SIM_MATH
+
 typedef float SimUnit;
 #define SimUnitZero 0
 
@@ -89,3 +92,9 @@ SimUnit SimMatrixDeterminant(SimMatrix m);
 SimMatrix SimMatrixMultScalar(SimMatrix m, SimUnit k);
 SimMatrix SimMatrixInvert(SimMatrix m);
 SimMatrix SimMatrixMakeBlockTensor(SimUnit x, SimUnit y, SimUnit z);
+
+typedef void (*ODEFunc)(SimUnit t, SimUnit y[], /* out */ SimUnit yDot[], void *context);
+
+void ODESolver(SimUnit y0[], int len, SimUnit t0, SimUnit t1, ODEFunc dydt, /* out */ SimUnit y1[], void *context);
+
+#endif

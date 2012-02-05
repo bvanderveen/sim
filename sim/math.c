@@ -1,5 +1,7 @@
 #include "math.h"
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 Sim3Vector SimQuatRotate(SimQuat q, Sim3Vector v) {
   SimQuat result = SimQuatMult(SimQuatMult(q, SimQuatMake(0, v.x, v.y, v.z)), SimQuatConjugate(q));
@@ -35,4 +37,23 @@ SimMatrix SimMatrixMakeBlockTensor(SimUnit x, SimUnit y, SimUnit z) {
   SimUnit m = x * y * z;
   SimUnit k = m / 12;
   return SimMatrixMake(y * y + z * z, 0, 0, 0, x * x + z * z, 0, 0, 0, y * y + x * x);
+}
+
+void ODESolver(SimUnit y0[], int len, SimUnit t0, SimUnit t1, ODEFunc dydt, /* out */ SimUnit y1[], void *context) {
+  // XXX assuming len is invariate, leak memory. ha ha
+  printf("allocating some shit\n");
+  static SimUnit *result = 0; 
+  if (!result) 
+    result = (SimUnit *)malloc(sizeof(SimUnit) * len);
+
+  printf("calling dydt\n");
+  //dydt(0, (SimUnit *)0, (SimUnit *)0, context);
+  dydt(t1 - t0, y0, result, context);
+  printf("called dydt\n");
+
+  printf("will compute new values\n");
+  for (int i = 0; i < len; i++) {
+    y1[i] = y0[i] + result[i];
+  }
+  printf("did compute new values\n");
 }
