@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "math.h"
-#include "body.h"
+#include "rigidbody.h"
 #include "vehicle.h"
 
 // bunch new shit from http://www.cs.cmu.edu/~baraff/sigcourse/notesd1.pdf

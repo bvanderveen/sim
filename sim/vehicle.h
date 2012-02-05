@@ -1,4 +1,4 @@
-#include "body.h"
+#include "rigidbody.h"
 #include "thruster.h"
 
 #ifndef __SIM_VEHICLE

@@ -1,7 +1,7 @@
 #include "math.h"
 
-#ifndef __SIM_BODY
-#define __SIM_BODY
+#ifndef __SIM_RIGID_BODY
+#define __SIM_RIGID_BODY
 
 struct SimRigidBody {
   SimUnit mass;

@@ -1,4 +1,4 @@
-#include "body.h"
+#include "rigidbody.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "sim.h"
