@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "sim.h"
+#include <math.h>
 
 SimRigidBodyRef SimRigidBodyCreate() {
   SimRigidBodyRef result = (SimRigidBodyRef)malloc(sizeof(struct SimRigidBody));
@@ -10,9 +11,9 @@ SimRigidBodyRef SimRigidBodyCreate() {
   result->IbodyInv = SimMatrixInvert(result->Ibody);
 
   result->x = Sim3VectorZero;
-  result->q = SimQuatMakeWithAngle(0, Sim3VectorMake(1,0,0));
-  result->P = Sim3VectorZero;
-  result->L = Sim3VectorZero;
+  result->q = SimQuatMakeWithAngle(M_PI, Sim3VectorMake(0,0,1));
+  result->P = Sim3VectorMake(0, .2, 0);
+  result->L = Sim3VectorMake(0, 0, 0);
 
   return result;
 }
@@ -74,7 +75,7 @@ void SimRigidBodyCopyFromBuffer(SimRigidBodyRef ref, SimUnit y[]) {
 
 void SimRigidBodyUpdateInput(SimRigidBodyRef ref, SimUnit t) {
   // XXX assign ref->force and ref->torque, e.g., from user input
-  ref->force = Sim3VectorMake(0,.01,0);
+  ref->force = Sim3VectorMake(0, -.003, 0);
   ref->torque = Sim3VectorZero;
 }
 
