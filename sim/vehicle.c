@@ -29,6 +29,18 @@ void SimVehicleDraw(SimVehicleRef ref, SimUnit t) {
   printf("cool.\n");
   glTranslatef(ref->body->x.x, ref->body->x.y, ref->body->x.z);
 
+  Sim3Vector position = ref->body->x;
+  SimMatrix rotation = SimMatrixMakeRotationWithQuat(ref->body->q);
+
+  const SimUnit tx[] = {
+    rotation.m0, rotation.m3, rotation.m6, 0,
+    rotation.m1, rotation.m4, rotation.m7, 0,
+    rotation.m2, rotation.m5, rotation.m8, 0,
+    position.x, position.y, position.z, 1
+  };
+
+  glMultMatrixf((GLfloat *)tx);
+
   glColor3f(1.0f, 0.85f, 0.35f);
   glBegin(GL_TRIANGLES);
   {
