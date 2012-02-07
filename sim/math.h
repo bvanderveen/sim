@@ -26,7 +26,6 @@ typedef struct SimQuat SimQuat;
 
 #define SimQuatZero SimQuatMake(0,0,0,0)
 
-
 #define SimQuatMakeWithVector(V) SimQuatMake(0, (V).x, (V).y, (V).z)
 SimQuat SimQuatMakeWithAngle(SimUnit angle, Sim3Vector unitVector);
 
@@ -85,7 +84,7 @@ typedef struct SimMatrix SimMatrix;
   .m5 = 2 * (Q).y * (Q).z - 2 * (Q).w * (Q).x, \
 \
   .m6 = 2 * (Q).x * (Q).z - 2 * (Q).w * (Q).y, \
-  .m7 = 2 * (Q).y * (Q).z - 2 * (Q).w * (Q).x, \
+  .m7 = 2 * (Q).y * (Q).z + 2 * (Q).w * (Q).x, \
   .m4 = 1 - 2 * (Q).x * (Q).x - 2 * (Q).y * (Q).y })
 
 SimUnit SimMatrixDeterminant(SimMatrix m);

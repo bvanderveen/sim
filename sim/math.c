@@ -9,12 +9,12 @@ Sim3Vector SimQuatRotate(SimQuat q, Sim3Vector v) {
 }
 
 SimQuat SimQuatMakeWithAngle(SimUnit angle, Sim3Vector unitVector) {
-  Sim3Vector v = Sim3VectorScale(sin(1.0 / 2.0 * angle), unitVector);
-  return ((SimQuat){ .w = cos(1.0 / 2.0 * angle), .x = v.x, .y = v.y, .z = v.z });
+  Sim3Vector v = Sim3VectorScale(sin(angle / 2.0), unitVector);
+  return ((SimQuat){ .w = cos(angle / 2.0), .x = v.x, .y = v.y, .z = v.z });
 }
 
 SimUnit SimMatrixDeterminant(SimMatrix m) {
-  return m.m0 * (m.m8 * m.m4 - m.m7 * m.m5) - m.m3 * (m.m8 * m.m1 - m.m7 * m.m2) + m.m6 * (m.m5 * m.m2 - m.m5 * m.m2);
+  return m.m0 * (m.m8 * m.m4 - m.m7 * m.m5) - m.m3 * (m.m8 * m.m1 - m.m7 * m.m2) + m.m6 * (m.m5 * m.m1 - m.m4 * m.m3);
 }
 
 SimMatrix SimMatrixMultScalar(SimMatrix m, SimUnit k) {
@@ -27,7 +27,7 @@ SimMatrix SimMatrixMultScalar(SimMatrix m, SimUnit k) {
 
 SimMatrix SimMatrixInvert(SimMatrix m) {
   return SimMatrixMultScalar((SimMatrix) {
-    .m0 = m.m8 * m.m4 - m.m7 * m.m5, .m1 = m.m7 * m.m2 - m.m7 * m.m1, .m2 = m.m5 * m.m1 - m.m4 * m.m2,
+    .m0 = m.m8 * m.m4 - m.m7 * m.m5, .m1 = m.m7 * m.m2 - m.m8 * m.m1, .m2 = m.m5 * m.m1 - m.m4 * m.m2,
     .m3 = m.m6 * m.m5 - m.m8 * m.m3, .m4 = m.m8 * m.m0 - m.m6 * m.m2, .m5 = m.m3 * m.m2 - m.m5 * m.m0,
     .m6 = m.m7 * m.m3 - m.m6 * m.m4, .m7 = m.m6 * m.m1 - m.m7 * m.m0, .m8 = m.m4 * m.m0 - m.m3 * m.m1
   }, 1 / SimMatrixDeterminant(m));
