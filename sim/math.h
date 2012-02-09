@@ -51,6 +51,7 @@ typedef struct SimMatrix SimMatrix;
   .m6 = (M6), .m7 = (M7), .m8 = (M8) })
 
 #define SimMatrixZero SimMatrixMake(0,0,0,0,0,0,0,0,0)
+#define SimMatrixIdentity SimMatrixMake(1,0,0,0,1,0,0,0,1)
 #define SimMatrixTranspose(M) ((SimMatrix){ \
   .m0 = (M).m0, .m1 = (M).m3, .m2 = (M).m6, \
   .m3 = (M).m1, .m4 = (M).m4, .m5 = (M).m7, \
@@ -85,7 +86,7 @@ typedef struct SimMatrix SimMatrix;
 \
   .m6 = 2 * (Q).x * (Q).z - 2 * (Q).w * (Q).y, \
   .m7 = 2 * (Q).y * (Q).z + 2 * (Q).w * (Q).x, \
-  .m4 = 1 - 2 * (Q).x * (Q).x - 2 * (Q).y * (Q).y })
+  .m8 = 1 - 2 * (Q).x * (Q).x - 2 * (Q).y * (Q).y })
 
 SimUnit SimMatrixDeterminant(SimMatrix m);
 SimMatrix SimMatrixMultScalar(SimMatrix m, SimUnit k);

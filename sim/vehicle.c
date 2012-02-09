@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <OpenGL/gl.h>
+#include <math.h>
 
 SimVehicleRef SimVehicleCreate() {
   SimVehicleRef result = (SimVehicleRef)malloc(sizeof(struct SimVehicle));
@@ -21,16 +22,25 @@ void SimVehicleDestroy(SimVehicleRef ref) {
 void SimVehicleDraw(SimVehicleRef ref, SimUnit t) {
 
   glPushMatrix();
-  
-  printf("drawing vehicle (%p)\n", ref);
-  printf("body (%p) at:\n", ref->body);
 
   Sim3VectorPrint(ref->body->x);
-  printf("cool.\n");
-  glTranslatef(ref->body->x.x, ref->body->x.y, ref->body->x.z);
 
+  static SimUnit tz = 0;
+
+  tz += t * 2;
   Sim3Vector position = ref->body->x;
   SimMatrix rotation = SimMatrixMakeRotationWithQuat(ref->body->q);
+  //SimQuat q = SimQuatMakeWithAngle(M_2_PI * tz, Sim3VectorMake(0,0,1));
+  //SimQuatPrint(q);
+  //SimQuat q = SimQuatMake(0.7071067811865476,0,-0.7071067811865476,0);
+  //SimMatrix rotation = SimMatrixMakeRotationWithQuat(q);
+
+  // float a = M_2_PI * tz;
+  // SimMatrix rotation = SimMatrixMake(
+  //    cos(a), sin(a), 0,
+  //    -sin(a), cos(a), 0,
+  //    0, 0, 1
+  //  );
 
   const SimUnit tx[] = {
     rotation.m0, rotation.m3, rotation.m6, 0,
