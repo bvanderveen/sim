@@ -31,12 +31,12 @@ SimQuat SimQuatMakeWithAngle(SimUnit angle, Sim3Vector unitVector);
 
 #define SimQuatConjugate(Q) ((SimQuat){ .w = (Q).w, .x = -(Q).x, .y = -(Q).y, .z = -(Q).z })
 #define SimQuatMult(L, R) ((SimQuat){ \
-  .w = (L).w * (R).w - (L).x * (R).x - (L).y * (R).y - (L).z * (R).z, \
+  .w = (L).w * (R).w - (L).w * (R).x - (L).w * (R).y - (L).w * (R).z, \
   .x = (L).w * (R).x + (L).x * (R).w + (L).y * (R).z - (L).z * (R).y, \
   .y = (L).w * (R).y + (L).y * (R).w + (L).z * (R).x - (L).x * (R).z, \
   .z = (L).w * (R).z + (L).z * (R).w + (L).x * (R).y - (L).y * (R).x })
 #define SimQuatScale(K, Q) ((SimQuat){ .w = (K) * (Q).w, .x = (K) * (Q).x, .y = (K) * (Q).y, .z = (K) * (Q).z })
-#define SimQuatNormalize(Q) (Q)
+#define SimQuatNormalize(Q) (Q) // ha ha 
 
 Sim3Vector SimQuatRotate(SimQuat q, Sim3Vector v);
 
