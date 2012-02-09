@@ -14,7 +14,7 @@ SimQuat SimQuatMakeWithAngle(SimUnit angle, Sim3Vector unitVector) {
 }
 
 SimUnit SimMatrixDeterminant(SimMatrix m) {
-  return m.m0 * (m.m8 * m.m4 - m.m7 * m.m5) - m.m3 * (m.m8 * m.m1 - m.m7 * m.m2) + m.m6 * (m.m5 * m.m1 - m.m4 * m.m3);
+  return m.m0 * (m.m8 * m.m4 - m.m7 * m.m5) + m.m1 * (m.m5 * m.m6 - m.m8 * m.m3) + m.m2 * (m.m3 * m.m7 - m.m4 * m.m6);
 }
 
 SimMatrix SimMatrixMultScalar(SimMatrix m, SimUnit k) {
