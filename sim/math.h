@@ -59,16 +59,16 @@ typedef struct SimMatrix SimMatrix;
 
 #define SimMatrixMult(A, B) ((SimMatrix){ \
   .m0 = (A).m0 * (B).m0 + (A).m1 * (B).m3 + (A).m2 * (B).m6, \
-  .m1 = (A).m0 * (B).m1 + (A).m1 * (B).m4 + (A).m2 + (B).m7, \
-  .m2 = (A).m0 * (B).m2 + (A).m1 * (B).m5 + (A).m2 + (B).m8, \
+  .m1 = (A).m0 * (B).m1 + (A).m1 * (B).m4 + (A).m2 * (B).m7, \
+  .m2 = (A).m0 * (B).m2 + (A).m1 * (B).m5 + (A).m2 * (B).m8, \
 \
   .m3 = (A).m3 * (B).m0 + (A).m4 * (B).m3 + (A).m5 * (B).m6, \
-  .m4 = (A).m3 * (B).m1 + (A).m4 * (B).m4 + (A).m5 + (B).m7, \
-  .m5 = (A).m3 * (B).m2 + (A).m4 * (B).m5 + (A).m5 + (B).m8, \
+  .m4 = (A).m3 * (B).m1 + (A).m4 * (B).m4 + (A).m5 * (B).m7, \
+  .m5 = (A).m3 * (B).m2 + (A).m4 * (B).m5 + (A).m5 * (B).m8, \
 \
   .m6 = (A).m6 * (B).m0 + (A).m7 * (B).m3 + (A).m8 * (B).m6, \
-  .m7 = (A).m6 * (B).m1 + (A).m7 * (B).m4 + (A).m8 + (B).m7, \
-  .m5 = (A).m6 * (B).m2 + (A).m7 * (B).m5 + (A).m8 + (B).m8 })
+  .m7 = (A).m6 * (B).m1 + (A).m7 * (B).m4 + (A).m8 * (B).m7, \
+  .m5 = (A).m6 * (B).m2 + (A).m7 * (B).m5 + (A).m8 * (B).m8 })
 
 #define SimMatrixMultVector(M, V) ((Sim3Vector) { \
   .x = (M).m0 * (V).x + (M).m1 * (V).y + (M).m2 * (V).z, \
